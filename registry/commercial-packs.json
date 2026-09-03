@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "purpose": "Pack khách có thể mua. Stub luôn có trên client; runtime chỉ sau sync-entitled.",
+  "licenseApiDefault": "http://localhost:8787",
+  "packs": {
+    "core": {
+      "label": "Core",
+      "description": "Bootstrap, ping, skill stub, license client",
+      "includedIn": ["free", "pro", "studio"],
+      "stubSkillIds": ["unity-agent-runtime"],
+      "setupScript": null
+    },
+    "pke": {
+      "label": "Project Knowledge Engine",
+      "description": "Live C# / prefab / reference index",
+      "includedIn": ["pro", "studio"],
+      "stubSkillIds": ["unity-live-index"],
+      "requires": ["core"]
+    },
+    "vfx": {
+      "label": "VFX Authoring",
+      "description": "Particle catalog + bridge VFX",
+      "includedIn": ["pro", "studio"],
+      "stubSkillIds": ["unity-vfx-authoring"],
+      "requires": ["core"]
+    },
+    "shadergraph": {
+      "label": "Shader Graph",
+      "description": "Shader Graph catalog + templates",
+      "includedIn": ["studio"],
+      "stubSkillIds": ["unity-shadergraph-authoring"],
+      "requires": ["core"]
+    },
+    "figma-hud": {
+      "label": "Figma HUD",
+      "description": "Figma REST → HUD panel",
+      "includedIn": ["studio"],
+      "stubSkillIds": ["unity-figma-hud-authoring"],
+      "requires": ["core"]
+    },
+    "builder": {
+      "label": "Builder System",
+      "description": "Declarative prefab/scene/VFX recipes",
+      "includedIn": ["studio"],
+      "stubSkillIds": ["unity-builder-system"],
+      "requires": ["core"]
+    },
+    "review": {
+      "label": "Commit Review Cloud",
+      "description": "Client gọi cloud review — không ship server",
+      "includedIn": ["studio"],
+      "stubSkillIds": ["agent-commit-review"],
+      "requires": ["core"],
+      "cloudOnly": true
+    }
+  },
+  "neverShipToClient": [
+    "agent-kit-promotion",
+    "agent-core-governance",
+    "agent-north-star",
+    "agent-skill-registry",
+    "agent-skill-lifecycle",
+    "agent-project-orchestrator",
+    "TemplatePro",
+    "kit-dev"
+  ]
+}

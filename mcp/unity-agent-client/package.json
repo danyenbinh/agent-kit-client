@@ -1,0 +1,7 @@
+{
+  "name": "unity-agent-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Client-tip MCP stub for agent-kit-client"
+}

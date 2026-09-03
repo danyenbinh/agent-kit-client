@@ -1,0 +1,7 @@
+{
+  "key": "dev-core-vfx",
+  "org": "YourStudio",
+  "licenseApi": "http://localhost:8787",
+  "installedPacks": [],
+  "note": "Copy thành <game>/.cursor/agent-kit-license.json rồi chạy sync-entitled.ps1"
+}
