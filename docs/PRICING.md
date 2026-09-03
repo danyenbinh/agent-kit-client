@@ -16,8 +16,8 @@ Full vendor sheet (indicative Y1): see cloud `gtm/PRICING.md` when under NDA.
 
 ## Year 1 billing
 
-Portal license key → Apply in Cursor / `sync-entitled.ps1`.  
-Stripe self-serve on vendor portal.
+**Core free:** offline Init (extension / `init-agent-kit.ps1` / `agent_kit_init`) — no portal.  
+**Pro/Studio:** portal license key → Apply / `sync-entitled.ps1`. Stripe on vendor portal.
 
 ## Design partners
 

@@ -1,8 +1,8 @@
 {
   "name": "agent-kit-for-unity",
   "displayName": "Agent Kit for Unity",
-  "description": "Unity-aware toolkit for Cursor and Claude Code: free PKE index + basic bridge MCP in one Apply. VFX/Builder/Shader on Pro/Studio.",
-  "version": "0.1.3",
+  "description": "Init free Agent Kit into your Unity project in one click: PKE + Unity MCP + ISR. Works with Cursor and Claude Code. No portal required for free tier.",
+  "version": "0.1.4",
   "publisher": "ZezoCode",
   "license": "MIT",
   "repository": {
@@ -22,8 +22,9 @@
   "keywords": [
     "unity",
     "mcp",
-    "game-development",
-    "workspace"
+    "cursor",
+    "claude-code",
+    "game-development"
   ],
   "galleryBanner": {
     "color": "#1b2330",
@@ -37,6 +38,7 @@
   "activationEvents": [
     "onView:agentKitUnity.panel",
     "onCommand:agentKitUnity.openPanel",
+    "onCommand:agentKitUnity.init",
     "onCommand:agentKitUnity.applyCore",
     "onCommand:agentKitUnity.openPortal"
   ],
@@ -49,8 +51,13 @@
         "category": "Agent Kit for Unity"
       },
       {
+        "command": "agentKitUnity.init",
+        "title": "Agent Kit for Unity: Init into project",
+        "category": "Agent Kit for Unity"
+      },
+      {
         "command": "agentKitUnity.applyCore",
-        "title": "Agent Kit for Unity: Apply Core pack",
+        "title": "Agent Kit for Unity: Init into project (alias)",
         "category": "Agent Kit for Unity"
       },
       {

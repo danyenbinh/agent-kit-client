@@ -1,6 +1,7 @@
 # Extension — Agent Kit for Unity
 
 See [extension/README.md](../extension/README.md).  
-Vendor publish / monetize docs: `agent-kit-cloud/ops/MARKETPLACE.md` (not in this customer repo).
+Vendor publish docs: `agent-kit-cloud/ops/MARKETPLACE.md` (private cloud repo).
 
-Free Cursor/VS Code add-on for Unity projects. Money = portal Unity Pro/Studio, not Marketplace paid listing.
+**Free:** offline **Init Agent Kit** — core + unity-agent MCP + PKE + ISR (no portal).  
+**Paid:** portal Apply for VFX / Builder / Shader / etc.

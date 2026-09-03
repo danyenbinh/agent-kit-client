@@ -1,0 +1,20 @@
+{
+  "name": "agent-kit-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Agent Kit client-tip MCP — status + entitlements (host-agnostic)",
+  "bin": {
+    "agent-kit-client-mcp": "./index.mjs"
+  },
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "adm-zip": "^0.5.16"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,28 @@
+﻿{
+    "id":  "unity-runtime",
+    "version":  "0.1.0",
+    "label":  "Unity Runtime",
+    "description":  "Unity Editor Bridge core (ping/compile path) — MCP tools call bridge; no IDE lock-in",
+    "platform":  "unity",
+    "hosts":  [
+                  "*"
+              ],
+    "skills":  [
+
+               ],
+    "kitDevSkillIds":  [
+
+                       ],
+    "mcpToolGroups":  [
+                          "editor-bridge",
+                          "verify-loop"
+                      ],
+    "bridgeGlobs":  [
+                        "reference/AgentBridge/**"
+                    ],
+    "setupScript":  "scripts/copy-bridge-core.ps1",
+    "requires":  [
+                     "core"
+                 ],
+    "notes":  "Index/PKE lives in pack pke. Bridge + compile/playmode verify for Unity Pro base."
+}

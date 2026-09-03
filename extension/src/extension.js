@@ -1,7 +1,7 @@
 "use strict";
 
 const vscode = require("vscode");
-const { applyCoreToWorkspace, readLocalStatus, resolvePaths } = require("./applyCore");
+const { initAgentKitToWorkspace, readLocalStatus, resolvePaths } = require("./applyCore");
 
 function cfg() {
   const c = vscode.workspace.getConfiguration("agentKit");
@@ -99,7 +99,7 @@ function getWebviewHtml(webview, nonce, state) {
 </head>
 <body>
   <h1>Agent Kit for Unity</h1>
-  <p class="muted">Free tier: Core + basic Unity MCP + PKE (+ ISR tools). VFX / Builder / Shader stay on Pro / Studio.</p>
+  <p class="muted">One-click offline init: core + Unity MCP + PKE + ISR tools. No portal required for free tier.</p>
 
   <div class="card">
     <div class="muted">Workspace status</div>
@@ -107,26 +107,24 @@ function getWebviewHtml(webview, nonce, state) {
   </div>
 
   <div class="card">
-    <label for="licenseApi">License API (HTTPS)</label>
-    <input id="licenseApi" placeholder="https://license.example.com" value="${escapeHtml(state.licenseApi)}" />
-    <label for="freeKey">Core license key</label>
-    <input id="freeKey" placeholder="your-core-key" value="${escapeHtml(state.freeKey)}" />
+    <div class="muted">Hosts to wire</div>
+    <label><input type="checkbox" id="hostCursor" checked /> Cursor</label>
+    <label style="margin-left:0.75rem"><input type="checkbox" id="hostClaude" /> Claude Code</label>
     <div class="row">
-      <button class="primary" id="btnApply">Apply free packs</button>
+      <button class="primary" id="btnInit">Init Agent Kit</button>
       <button class="ghost" id="btnRefresh">Refresh</button>
     </div>
     <div id="status"></div>
   </div>
 
   <div class="card">
-    <div class="muted">Account</div>
+    <div class="muted">Pro / Studio (optional)</div>
+    <p class="muted" style="margin:0.4rem 0">VFX, Builder, Shader still use your account portal.</p>
+    <label for="licenseApi">License API</label>
+    <input id="licenseApi" placeholder="https://license.example.com" value="${escapeHtml(state.licenseApi)}" />
     <div class="row">
       <button class="ghost" id="btnPortal">Open account page</button>
     </div>
-    <ul>
-      <li>Apply only contacts the license API you configure.</li>
-      <li>After Apply, reload MCP if tip tools are missing.</li>
-    </ul>
   </div>
 
   <script nonce="${nonce}">
@@ -141,37 +139,37 @@ function getWebviewHtml(webview, nonce, state) {
       if (!s) { $("localStatus").textContent = "Open a folder workspace first."; return; }
       $("localStatus").innerHTML =
         "Packs: <code>" + ((s.installedPacks || []).join(", ") || "—") + "</code><br/>" +
-        "Core: <code>" + (s.coreVersion || "—") + "</code> · " +
-        "Runtime: <code>" + (s.unityRuntimeVersion || "—") + "</code> · " +
-        "PKE: <code>" + (s.pkeVersion || "—") + "</code><br/>" +
-        "License: " + (s.licenseKey || "—") + "<br/>" +
-        "Tip MCP wired: " + (s.hasTipMcp ? "yes" : "no");
+        "Tip MCP: " + (s.hasTipMcp ? "yes" : "no") + " · Unity MCP: " + (s.hasUnityMcp ? "yes" : "no") + "<br/>" +
+        "Init: " + (s.initSource || "—");
     }
     window.addEventListener("message", (e) => {
       const m = e.data || {};
       if (m.type === "localStatus") renderLocal(m.status);
       if (m.type === "applyResult") {
-        $("btnApply").disabled = false;
-        $("btnApply").textContent = "Apply free packs";
-        if (m.ok) setStatus("Free packs applied.\\n" + (m.summary || ""), true);
-        else setStatus(m.error || "Apply failed", false);
+        $("btnInit").disabled = false;
+        $("btnInit").textContent = "Init Agent Kit";
+        if (m.ok) setStatus("Init OK.\\n" + (m.summary || ""), true);
+        else setStatus(m.error || "Init failed", false);
         if (m.status) renderLocal(m.status);
       }
       if (m.type === "busy") {
-        $("btnApply").disabled = true;
-        $("btnApply").textContent = "Applying…";
-        setStatus("Downloading core + unity-runtime + pke…", null);
+        $("btnInit").disabled = true;
+        $("btnInit").textContent = "Initializing…";
+        setStatus("Copying free bundle into this project…", null);
       }
     });
-    $("btnApply").onclick = () => {
-      vscode.postMessage({
-        type: "applyCore",
-        licenseApi: $("licenseApi").value.trim(),
-        freeKey: $("freeKey").value.trim()
-      });
+    $("btnInit").onclick = () => {
+      const hosts = [];
+      if ($("hostCursor").checked) hosts.push("cursor");
+      if ($("hostClaude").checked) hosts.push("claude-code");
+      if (!hosts.length) hosts.push("cursor");
+      vscode.postMessage({ type: "init", hosts });
     };
     $("btnRefresh").onclick = () => vscode.postMessage({ type: "refresh" });
-    $("btnPortal").onclick = () => vscode.postMessage({ type: "openPortal" });
+    $("btnPortal").onclick = () => vscode.postMessage({
+      type: "openPortal",
+      licenseApi: $("licenseApi").value.trim()
+    });
     vscode.postMessage({ type: "ready" });
   </script>
 </body>
@@ -214,18 +212,19 @@ class AgentKitUnityProvider {
         return;
       }
       if (msg.type === "openPortal") {
-        const url = portalUrl();
-        if (!url) {
+        const api = (msg.licenseApi || cfg().licenseApi || "").replace(/\/$/, "");
+        if (!api) {
           vscode.window.showWarningMessage(
-            "Set agentKit.licenseApi in Settings first."
+            "Set License API in the panel (Pro portal only)."
           );
           return;
         }
-        await vscode.env.openExternal(vscode.Uri.parse(url));
+        const pathSuffix = cfg().portalPath || "/app";
+        await vscode.env.openExternal(vscode.Uri.parse(api + pathSuffix));
         return;
       }
-      if (msg.type === "applyCore") {
-        await this.runApply(msg.licenseApi, msg.freeKey);
+      if (msg.type === "init") {
+        await this.runInit(msg.hosts);
       }
     });
   }
@@ -236,7 +235,7 @@ class AgentKitUnityProvider {
     this._view?.webview.postMessage({ type: "localStatus", status });
   }
 
-  async runApply(licenseApi, freeKey) {
+  async runInit(hosts) {
     const folder = workspaceFolder();
     if (!folder) {
       vscode.window.showErrorMessage(
@@ -250,60 +249,29 @@ class AgentKitUnityProvider {
       return;
     }
     this._view?.webview.postMessage({ type: "busy" });
-    const api = (licenseApi || cfg().licenseApi).replace(/\/$/, "");
-    const key = freeKey || cfg().freeKey;
-    if (!api || !key) {
-      this._view?.webview.postMessage({
-        type: "applyResult",
-        ok: false,
-        error: "Set License API and Core license key first",
-        status: readLocalStatus(folder),
-      });
-      vscode.window.showWarningMessage(
-        "Agent Kit for Unity: set licenseApi and freeKey in Settings or the panel."
-      );
-      return;
-    }
-    if (!/^https?:\/\//i.test(api)) {
-      this._view?.webview.postMessage({
-        type: "applyResult",
-        ok: false,
-        error: "licenseApi must start with http:// or https://",
-        status: readLocalStatus(folder),
-      });
-      return;
-    }
-
     try {
-      const result = await applyCoreToWorkspace({
+      const result = await initAgentKitToWorkspace({
         extensionPath: this._context.extensionPath,
         workspaceFolder: folder,
-        key,
-        licenseApi: api,
-        org: "Core Free",
+        hosts: hosts && hosts.length ? hosts : ["cursor"],
       });
       const status = readLocalStatus(folder);
       if (!result.ok) {
-        const err =
-          result.error ||
-          result.apply?.error ||
-          JSON.stringify(result.apply?.errors || result);
+        const err = result.error || result.hint || JSON.stringify(result);
         this._view?.webview.postMessage({
           type: "applyResult",
           ok: false,
           error: String(err),
           status,
         });
-        vscode.window.showErrorMessage(
-          "Agent Kit for Unity — Apply Core failed: " + err
-        );
+        vscode.window.showErrorMessage("Agent Kit init failed: " + err);
         return;
       }
       const summary = [
-        `installed: ${(result.apply?.installed || ["core"]).join(", ")}`,
-        `core version: ${status.coreVersion || "?"}`,
-        `tip MCP: ${result.mcp?.path || ""}`,
-        "Reload MCP to pick up agent_kit_* tools. Upgrade Unity packs in portal.",
+        `packs: ${(result.packs || []).join(", ")}`,
+        `skills: ${(result.skillsInstalled || []).length}`,
+        `hosts: ${(result.hosts || []).join(", ")}`,
+        result.next || "Reload MCP",
       ].join("\n");
       this._view?.webview.postMessage({
         type: "applyResult",
@@ -312,7 +280,7 @@ class AgentKitUnityProvider {
         status,
       });
       vscode.window.showInformationMessage(
-        "Agent Kit for Unity: Core applied. Reload MCP if tip tools are missing."
+        "Agent Kit initialized. Reload MCP, then use agent_kit_client_status / unity_ping."
       );
     } catch (e) {
       const status = readLocalStatus(folder);
@@ -323,12 +291,11 @@ class AgentKitUnityProvider {
         status,
       });
       vscode.window.showErrorMessage(
-        "Agent Kit for Unity error: " + (e?.message || e)
+        "Agent Kit init error: " + (e?.message || e)
       );
     }
   }
 }
-
 /**
  * @param {vscode.ExtensionContext} context
  */
@@ -348,8 +315,13 @@ function activate(context) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("agentKitUnity.applyCore", async () => {
-      const c = cfg();
-      await provider.runApply(c.licenseApi, c.freeKey);
+      await provider.runInit(["cursor"]);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("agentKitUnity.init", async () => {
+      await provider.runInit(["cursor"]);
     })
   );
 

@@ -1,0 +1,33 @@
+﻿{
+    "id":  "pke",
+    "plannedId":  "unity-pke",
+    "version":  "0.1.0",
+    "label":  "Project Knowledge Engine",
+    "description":  "Live C# / prefab / reference index",
+    "platform":  "unity",
+    "hosts":  [
+                  "*"
+              ],
+    "skills":  [
+                   "unity-live-index",
+                   "unity-code-map",
+                   "agent-codebase-navigation"
+               ],
+    "kitDevSkillIds":  [
+                           "unity-live-index",
+                           "unity-code-map",
+                           "agent-codebase-navigation"
+                       ],
+    "mcpToolGroups":  [
+                          "project-knowledge",
+                          "codebase-index"
+                      ],
+    "bridgeGlobs":  [
+                        "reference/AgentBridge/Index/**"
+                    ],
+    "setupScript":  null,
+    "requires":  [
+                     "core",
+                     "unity-runtime"
+                 ]
+}

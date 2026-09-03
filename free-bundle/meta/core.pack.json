@@ -1,0 +1,33 @@
+﻿{
+    "id":  "core",
+    "version":  "0.1.1",
+    "label":  "Core",
+    "description":  "Universal tip — license, sync, host adapters, ISR discipline. Pair with free unity-runtime + pke.",
+    "platform":  "universal",
+    "hosts":  [
+                  "*"
+              ],
+    "skills":  [
+                   "agent-kit-runtime"
+               ],
+    "skillSource":  "client-owned",
+    "kitDevSkillIds":  [
+
+                       ],
+    "mcpToolGroups":  [
+
+                      ],
+    "bridgeGlobs":  [
+
+                    ],
+    "setupScript":  null,
+    "neverInclude":  [
+                         "agent-kit-promotion",
+                         "agent-core-governance",
+                         "agent-north-star",
+                         "agent-skill-registry",
+                         "agent-skill-lifecycle",
+                         "agent-project-orchestrator",
+                         "TemplatePro"
+                     ]
+}

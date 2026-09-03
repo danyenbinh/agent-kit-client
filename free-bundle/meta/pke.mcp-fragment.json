@@ -1,0 +1,34 @@
+﻿{
+    "packId":  "pke",
+    "platform":  "unity",
+    "toolGroups":  [
+                       "project-knowledge",
+                       "codebase-index"
+                   ],
+    "tools":  [
+                  "agent_get_index_health",
+                  "agent_get_prefab_fingerprint",
+                  "agent_query_scriptable",
+                  "agent_prefab_audit",
+                  "agent_find_references",
+                  "agent_get_module_flow_edges",
+                  "agent_get_changed_since",
+                  "agent_read_playmode_errors",
+                  "agent_project_scan",
+                  "agent_discover_project",
+                  "agent_build_project_index",
+                  "agent_build_codebase_index",
+                  "agent_read_project_profile",
+                  "agent_index_status",
+                  "agent_apply_index_delta",
+                  "agent_read_project_index",
+                  "agent_read_module_index",
+                  "agent_read_type_outline",
+                  "agent_read_type_digest",
+                  "agent_read_code_layers",
+                  "agent_read_module_anchors",
+                  "agent_rebuild_module_anchors",
+                  "agent_find_in_module"
+              ],
+    "version":  "0.1.0"
+}

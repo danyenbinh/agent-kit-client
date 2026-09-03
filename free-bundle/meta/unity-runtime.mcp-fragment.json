@@ -1,0 +1,18 @@
+﻿{
+    "packId":  "unity-runtime",
+    "platform":  "unity",
+    "toolGroups":  [
+                       "editor-bridge",
+                       "verify-loop"
+                   ],
+    "tools":  [
+                  "unity_ping",
+                  "unity_list_scenes",
+                  "unity_bridge_batch",
+                  "unity_bridge_invoke",
+                  "agent_verify_compile",
+                  "agent_verify_playmode",
+                  "agent_verify_feature"
+              ],
+    "version":  "0.1.0"
+}

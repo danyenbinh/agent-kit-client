@@ -1,40 +1,33 @@
 # Quickstart — Claude Code
 
-Same packs as Cursor. Only the **host adapter** differs (`.mcp.json` + `CLAUDE.md` section).
+Same free packs as Cursor. Host adapter uses `.mcp.json`.
 
-## 1. Bootstrap
+## Free: offline Init
 
 ```powershell
-powershell -File agent-kit-client/scripts/bootstrap-client.ps1 -HostName claude-code
-# or both hosts:
-powershell -File agent-kit-client/scripts/bootstrap-client.ps1 -HostName both
+powershell -File agent-kit-client/scripts/init-agent-kit.ps1 -HostName claude-code
+# dual-host:
+powershell -File agent-kit-client/scripts/init-agent-kit.ps1 -HostName both
 ```
 
-## 2. License + sync
+Or MCP **`agent_kit_init`** with `hosts: ["claude-code"]` (or both) after tip MCP is available.
 
-Use the same `.cursor/agent-kit-license.json` (shared project license file):
+Reload / restart Claude Code. Verify: `agent_kit_client_status`, `unity_ping`, `agent_get_index_health`, `agent_record_turn`.
+
+Init writes Unity MCP under `.cursor/agent-kit/mcp/unity-agent-mcp` and merges into `.mcp.json`.
+
+## Pro / Studio
+
+Same `.cursor/agent-kit-license.json` as Cursor:
 
 ```powershell
 powershell -File agent-kit-client/scripts/sync-entitled.ps1 -HostName claude-code
 ```
 
-## 3. MCP tip
-
-Ensure `agent-kit-client/mcp/agent-kit-client` has `npm install`.  
-Claude Code reads project `.mcp.json` — reload / restart Claude Code after bootstrap.
-
-Verify with tip tools: `agent_kit_client_status`, `agent_kit_entitlements`.
-
-## 4. Unity tools
-
-Identical MCP tool names as Cursor (`unity_ping`, PKE, …).  
-After `sync-entitled`, Unity MCP lives at `.cursor/agent-kit/mcp/unity-agent-mcp` — merge into `.mcp.json` using the hint file.  
-Unity Editor + Bridge must be running; the host only speaks MCP stdio.
-
 ## Notes
 
-- Pricing does **not** change if you use Claude Code instead of Cursor.  
-- Do not expect `kit-dev` or studio governance rules in this client.  
-- For dual-host teams: `-HostName both`, one license key.
+- Pricing does **not** change by host.  
+- Free Init does not need the portal.  
+- Dual-host: `-HostName both`, one project tree.
 
 Cursor path: [QUICKSTART-CURSOR.md](QUICKSTART-CURSOR.md)

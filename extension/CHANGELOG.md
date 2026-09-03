@@ -1,20 +1,23 @@
 # Changelog
 
+## 0.1.4
+
+- Offline **Init Agent Kit** (no portal): core + unity-runtime host MCP + pke modules + ISR
+- MCP modules are **per pack** — free does **not** ship VFX/Builder/Shader/Figma catalogs
+- MCP tool `agent_kit_init`; script `scripts/init-agent-kit.ps1` for Claude Code / git
+
 ## 0.1.3
 
-- Marketplace README: Cursor + Claude Code dual-host benefits and day-to-day use cases
-- Listing description updated for free PKE + bridge MCP
+- Marketplace README: Cursor + Claude Code dual-host benefits
 
 ## 0.1.2
 
-- Free Apply installs `core` + `unity-runtime` + `pke` (basic MCP + PKE + ISR tools)
-- VFX / Builder / Shader remain Pro / Studio only
+- Free packs core + unity-runtime + pke (when using portal Apply)
 
 ## 0.1.1
 
-- Marketplace metadata cleanup; exclude MARKETPLACE.md from VSIX
-- Explicit licenseApi / key settings; safer spawn
+- Marketplace metadata cleanup
 
 ## 0.1.0
 
-- Initial Agent Kit for Unity extension
+- Initial extension

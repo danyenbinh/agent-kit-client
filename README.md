@@ -1,50 +1,50 @@
 # agent-kit-client
 
-**Agent Kit tip** — skills + MCP for your AI coding agent (Cursor & Claude Code).  
+**Agent Kit tip** — skills + MCP for Cursor & Claude Code (not a new IDE).  
 https://github.com/danyenbinh/agent-kit-client
 
-**Not an IDE.** Packs unlock by domain SKU (Core → Unity Pro → Unity Studio).
+## Free: one Init (no portal)
 
-## Docs (GTM + ops)
+Bundled offline: **core** + **unity-agent MCP** + **PKE** + **ISR** meta tools.
 
-- [Quickstart index](docs/QUICKSTART.md)
-- [Cursor](docs/QUICKSTART-CURSOR.md) · [Claude Code](docs/QUICKSTART-CLAUDE-CODE.md)
-- [Pricing summary](docs/PRICING.md)
-- Vendor ops (how it works / CRM / invoice): `agent-kit-cloud/ops/HOW-IT-WORKS.md`
+### Extension (Cursor)
 
-## Install
+1. Install **Agent Kit for Unity** (`ZezoCode.agent-kit-for-unity`) or local `.vsix`
+2. Open your Unity project folder
+3. Command Palette → **Agent Kit for Unity: Init into project** (or side panel → **Init Agent Kit**)
+4. Reload MCP → try `agent_kit_client_status` / `unity_ping` / `agent_get_index_health` / `agent_record_turn`
 
-### A) Free extension — Agent Kit for Unity (recommended for Core)
-
-```powershell
-cd agent-kit-client/extension
-npm run sync-vendor
-cd vendor/mcp/agent-kit-client ; npm install --omit=dev ; cd ../../..
-npm run ensure-icon
-npm run package   # needs Node 20+
-```
-
-Install `.vsix` from Releases or build with `npm run package` in `extension/`.  
-Vendor-only Marketplace publish guide: `agent-kit-cloud/ops/MARKETPLACE.md` (private cloud repo).
-Side panel **Agent Kit for Unity** → **Apply Core**. Portal = account / Pro billing.
-
-### B) Scripts (power users)
+### Git / Claude Code
 
 ```powershell
-powershell -File agent-kit-client/scripts/bootstrap-client.ps1 -HostName both
-# set .cursor/agent-kit-license.json → key + licenseApi
-cd agent-kit-client/mcp/agent-kit-client
-npm install
-powershell -File agent-kit-client/scripts/sync-entitled.ps1 -HostName both
+powershell -File agent-kit-client/scripts/init-agent-kit.ps1 -HostName both
 ```
 
-| Included | Not included |
-|----------|----------------|
-| `agent-kit-runtime`, stubs, license sync | kit-dev / governance |
-| MCP tip (`agent_kit_*`) | Unity Bridge until Unity packs entitled |
-| Host adapters Cursor + Claude Code | |
-| **extension/** Core free VSIX scaffold | Unity/PKE inside free extension |
+Or MCP tool **`agent_kit_init`** once tip MCP is available.
 
-Factory / portal: vendor `agent-kit-cloud` (private). Version: `1.0.0-rc.1` (V1 gate).
+Rebuild free bundle (maintainers with cloud dist):
 
-V1: Unity MCP installs under `.cursor/agent-kit/mcp/unity-agent-mcp` from pack `unity-runtime` — **not** kit-dev.
+```powershell
+node agent-kit-client/scripts/sync-free-bundle.mjs
+```
+
+## Pro / Studio
+
+VFX · Builder · Shader · Figma HUD · Review still use license portal **Apply** (`agent_kit_save_license` + `agent_kit_apply_packs`).
+
+## Docs
+
+- [Quickstart](docs/QUICKSTART.md) · [Cursor](docs/QUICKSTART-CURSOR.md) · [Claude](docs/QUICKSTART-CLAUDE-CODE.md)
+- [Pricing](docs/PRICING.md)
+- Marketplace publish (vendor): `agent-kit-cloud/ops/MARKETPLACE.md`
+
+## Package extension
+
+```powershell
+cd agent-kit-client
+node .\scripts\sync-free-bundle.mjs
+cd extension
+npm run package   # Node 20+ → agent-kit-for-unity-0.1.4.vsix
+```
+
+Factory / portal: private `agent-kit-cloud`.

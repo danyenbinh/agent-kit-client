@@ -1,0 +1,36 @@
+{
+  "kind": "agent-kit-free-bundle",
+  "packs": [
+    "core",
+    "unity-runtime",
+    "pke"
+  ],
+  "hosts": [
+    "cursor",
+    "claude-code"
+  ],
+  "mcpPolicy": "per-pack-modules",
+  "mcpMergedFrom": {
+    "unity-runtime": 20,
+    "pke": 15
+  },
+  "neverInFree": [
+    "vfx-catalog.mjs",
+    "vfx-storage.mjs",
+    "builder-catalog.mjs",
+    "shadergraph-catalog.mjs",
+    "figma-ui.mjs",
+    "ui-image.mjs",
+    "ui-image-png.mjs",
+    "patch-ui-image-registry.mjs",
+    "bundleleak-catalog.mjs",
+    "test-vfx-catalog.mjs",
+    "test-vfx-storage.mjs",
+    "test-shadergraph-catalog.mjs",
+    "test-figma-ui.mjs",
+    "test-ui-image.mjs"
+  ],
+  "note": "Offline free: tip + unity-runtime host MCP + pke modules. No VFX/Builder/Shader/Figma MCP.",
+  "sourceDist": "D:\\Project\\2026\\ADHD2\\agent-kit-cloud\\dist",
+  "syncedAt": "2026-09-03T10:44:05.403Z"
+}

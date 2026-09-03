@@ -34,70 +34,47 @@ function runNode(args, opts = {}) {
   return runCmd(process.execPath || "node", args, opts);
 }
 
-async function ensureTipNpm(tipMcp) {
-  const marker = path.join(tipMcp, "node_modules", "adm-zip");
-  if (fs.existsSync(marker)) return { ok: true, skipped: true };
-  const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
-  await runCmd(npmCmd, ["install", "--omit=dev"], { cwd: tipMcp });
-  return { ok: true, skipped: false };
-}
-
 /**
- * Apply free Unity Core tier — core + basic MCP (unity-runtime) + PKE.
- * Never applies VFX / Builder / Shader Graph (Pro / Studio).
+ * Offline Init — free packs from extension vendor (no license web).
  */
-const FREE_PACK_IDS = ["core", "unity-runtime", "pke"];
-
-async function applyCoreToWorkspace({
+async function initAgentKitToWorkspace({
   extensionPath,
   workspaceFolder,
-  key,
-  licenseApi,
-  org,
+  hosts,
 }) {
-  const paths = resolvePaths(extensionPath, workspaceFolder);
-  if (!paths.applyModule || !paths.tipIndex) {
+  const vendor = path.join(extensionPath, "vendor");
+  const manifest = path.join(vendor, "MANIFEST.json");
+  if (!fs.existsSync(manifest)) {
     return {
       ok: false,
-      error: "tip_mcp_missing",
-      hint: "Run npm run sync-vendor in agent-kit-client/extension, or keep agent-kit-client next to the project.",
-      tried: {
-        vendor: paths.vendorMcp,
-        sibling: paths.siblingMcp,
-      },
+      error: "vendor_missing",
+      hint: "Reinstall extension or run npm run sync-vendor in agent-kit-client/extension",
     };
   }
 
-  await ensureTipNpm(paths.tipMcp);
-
-  const skill = installCoreSkill(workspaceFolder, paths.skillSrc);
-  const mcp = wireCursorTipMcp(workspaceFolder, paths.tipIndex);
-
-  const runner = path.join(extensionPath, "scripts", "run-apply-core.mjs");
+  const runner = path.join(extensionPath, "scripts", "run-init.mjs");
   const payload = {
     projectRoot: workspaceFolder,
-    applyModule: paths.applyModule,
-    key,
-    licenseApi,
-    org: org || null,
-    packIds: FREE_PACK_IDS,
+    bundleRoot: vendor,
+    hosts: hosts && hosts.length ? hosts : ["cursor"],
   };
   const { stdout } = await runNode([runner, JSON.stringify(payload)]);
   let result;
   try {
     result = JSON.parse(stdout.trim().split("\n").filter(Boolean).pop());
   } catch (e) {
-    return { ok: false, error: "apply_parse_failed", stdout, detail: String(e) };
+    return { ok: false, error: "init_parse_failed", stdout, detail: String(e) };
   }
+  return result;
+}
 
-  return {
-    ...result,
-    skill,
-    mcp,
-    tipMcp: paths.tipMcp,
-    packsApplied: FREE_PACK_IDS,
-    note: "Free tier applies core + unity-runtime + pke. VFX/Builder/Shader require Pro/Studio portal upgrade.",
-  };
+/** @deprecated Prefer initAgentKitToWorkspace — kept for Pro portal apply later */
+async function applyCoreToWorkspace(opts) {
+  return initAgentKitToWorkspace({
+    extensionPath: opts.extensionPath,
+    workspaceFolder: opts.workspaceFolder,
+    hosts: ["cursor"],
+  });
 }
 
 function readLocalStatus(workspaceFolder) {
@@ -107,6 +84,7 @@ function readLocalStatus(workspaceFolder) {
   let license = null;
   let installed = {};
   let hasTipMcp = false;
+  let hasUnityMcp = false;
   try {
     if (fs.existsSync(licensePath)) {
       license = JSON.parse(fs.readFileSync(licensePath, "utf8"));
@@ -126,23 +104,25 @@ function readLocalStatus(workspaceFolder) {
     if (fs.existsSync(mcpPath)) {
       const m = JSON.parse(fs.readFileSync(mcpPath, "utf8"));
       hasTipMcp = Boolean(m?.mcpServers?.["agent-kit-client"]);
+      hasUnityMcp = Boolean(m?.mcpServers?.["unity-agent"]);
     }
   } catch (_) {}
   return {
     licenseKey: license?.key ? `${String(license.key).slice(0, 8)}…` : null,
     licenseApi: license?.licenseApi || null,
+    initSource: license?.initSource || null,
     coreVersion: installed.core?.version || null,
-    coreInstalledAt: installed.core?.installedAt || null,
     pkeVersion: installed.pke?.version || null,
     unityRuntimeVersion: installed["unity-runtime"]?.version || null,
     installedPacks: Object.keys(installed),
     hasTipMcp,
+    hasUnityMcp,
   };
 }
 
 module.exports = {
+  initAgentKitToWorkspace,
   applyCoreToWorkspace,
   readLocalStatus,
   resolvePaths,
-  FREE_PACK_IDS,
 };

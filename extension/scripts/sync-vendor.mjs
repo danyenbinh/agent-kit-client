@@ -1,15 +1,16 @@
 /**
- * Copy tip MCP + core skill into extension/vendor for VSIX packaging.
- * Free marketplace package: Core only — no Unity Runtime / PKE packs.
+ * Copy free-bundle into extension/vendor for VSIX (offline init, no portal).
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const extRoot = path.resolve(__dirname, "..");
 const clientRoot = path.resolve(extRoot, "..");
 const vendorRoot = path.join(extRoot, "vendor");
+const freeBundle = path.join(clientRoot, "free-bundle");
 
 function rmrf(p) {
   if (fs.existsSync(p)) fs.rmSync(p, { recursive: true, force: true });
@@ -29,24 +30,34 @@ function copyDir(src, dst, { skipNodeModules = true } = {}) {
   }
 }
 
+const sync = spawnSync(process.execPath, [path.join(clientRoot, "scripts", "sync-free-bundle.mjs")], {
+  cwd: clientRoot,
+  encoding: "utf8",
+  windowsHide: true,
+});
+if (sync.status !== 0) {
+  console.error(sync.stdout || "");
+  console.error(sync.stderr || "");
+  process.exit(sync.status || 1);
+}
+console.log(sync.stdout || "");
+
+if (!fs.existsSync(path.join(freeBundle, "MANIFEST.json"))) {
+  console.error("free-bundle missing after sync");
+  process.exit(1);
+}
+
 rmrf(vendorRoot);
-fs.mkdirSync(vendorRoot, { recursive: true });
-
-const mcpSrc = path.join(clientRoot, "mcp", "agent-kit-client");
-const mcpDst = path.join(vendorRoot, "mcp", "agent-kit-client");
-copyDir(mcpSrc, mcpDst);
-
-const skillSrc = path.join(clientRoot, "skills", "agent-kit-runtime");
-const skillDst = path.join(vendorRoot, "skills", "agent-kit-runtime");
-if (fs.existsSync(skillSrc)) copyDir(skillSrc, skillDst);
+copyDir(freeBundle, vendorRoot);
 
 fs.writeFileSync(
   path.join(vendorRoot, "MANIFEST.json"),
   JSON.stringify(
     {
-      kind: "agent-kit-core-extension-vendor",
+      ...JSON.parse(fs.readFileSync(path.join(freeBundle, "MANIFEST.json"), "utf8")),
+      kind: "agent-kit-for-unity-extension-vendor",
       packsAllowed: ["core", "unity-runtime", "pke"],
-      note: "Free extension vendor - Agent Kit for Unity Core+PKE+basic MCP. VFX/Builder/Shader via portal Pro/Studio.",
+      note: "Offline free init in VSIX. Pro VFX/Builder/Shader via portal.",
       syncedAt: new Date().toISOString(),
     },
     null,
@@ -54,5 +65,4 @@ fs.writeFileSync(
   )
 );
 
-console.log("synced vendor ->", vendorRoot);
-console.log("next: cd vendor/mcp/agent-kit-client && npm install --omit=dev");
+console.log("extension vendor <- free-bundle ->", vendorRoot);

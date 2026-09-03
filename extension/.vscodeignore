@@ -7,4 +7,5 @@ scripts/ensure-icon.mjs
 README.DRAFT.md
 *.vsix
 node_modules/**
+**/node_modules/**
 **/*.map
