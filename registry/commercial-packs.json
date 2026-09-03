@@ -1,58 +1,97 @@
 {
-  "version": 1,
-  "purpose": "Pack khách có thể mua. Stub luôn có trên client; runtime chỉ sau sync-entitled.",
+  "version": 2,
+  "purpose": "Commercial packs — stub on client; runtime after sync-entitled.",
   "licenseApiDefault": "http://localhost:8787",
+  "axes": {
+    "platform": ["universal", "unity", "web"],
+    "hosts": ["cursor", "claude-code", "vscode"],
+    "note": "Unity = first domain platform. Cursor = first host; Claude Code dual-host from Phase 1."
+  },
   "packs": {
     "core": {
       "label": "Core",
-      "description": "Bootstrap, ping, skill stub, license client",
+      "platform": "universal",
+      "hosts": ["*"],
+      "description": "Bootstrap, license, host adapters — no Unity Bridge",
       "includedIn": ["free", "pro", "studio"],
       "stubSkillIds": ["unity-agent-runtime"],
       "setupScript": null
     },
+    "review": {
+      "label": "Commit Review Cloud",
+      "platform": "universal",
+      "hosts": ["*"],
+      "description": "Client calls cloud review — no server ship",
+      "includedIn": ["studio"],
+      "stubSkillIds": ["agent-commit-review"],
+      "requires": ["core"],
+      "cloudOnly": true
+    },
+    "unity-runtime": {
+      "label": "Unity Runtime",
+      "platform": "unity",
+      "hosts": ["*"],
+      "description": "Bridge ping/compile (Phase 1 split)",
+      "includedIn": ["pro", "studio"],
+      "status": "planned",
+      "stubSkillIds": [],
+      "requires": ["core"]
+    },
     "pke": {
+      "plannedId": "unity-pke",
       "label": "Project Knowledge Engine",
+      "platform": "unity",
+      "hosts": ["*"],
       "description": "Live C# / prefab / reference index",
       "includedIn": ["pro", "studio"],
       "stubSkillIds": ["unity-live-index"],
       "requires": ["core"]
     },
     "vfx": {
+      "plannedId": "unity-vfx",
       "label": "VFX Authoring",
+      "platform": "unity",
+      "hosts": ["*"],
       "description": "Particle catalog + bridge VFX",
       "includedIn": ["pro", "studio"],
       "stubSkillIds": ["unity-vfx-authoring"],
       "requires": ["core"]
     },
     "shadergraph": {
+      "plannedId": "unity-shadergraph",
       "label": "Shader Graph",
+      "platform": "unity",
+      "hosts": ["*"],
       "description": "Shader Graph catalog + templates",
       "includedIn": ["studio"],
       "stubSkillIds": ["unity-shadergraph-authoring"],
       "requires": ["core"]
     },
     "figma-hud": {
+      "plannedId": "unity-figma-hud",
       "label": "Figma HUD",
+      "platform": "unity",
+      "hosts": ["*"],
       "description": "Figma REST → HUD panel",
       "includedIn": ["studio"],
       "stubSkillIds": ["unity-figma-hud-authoring"],
       "requires": ["core"]
     },
     "builder": {
+      "plannedId": "unity-builder",
       "label": "Builder System",
+      "platform": "unity",
+      "hosts": ["*"],
       "description": "Declarative prefab/scene/VFX recipes",
       "includedIn": ["studio"],
       "stubSkillIds": ["unity-builder-system"],
       "requires": ["core"]
-    },
-    "review": {
-      "label": "Commit Review Cloud",
-      "description": "Client gọi cloud review — không ship server",
-      "includedIn": ["studio"],
-      "stubSkillIds": ["agent-commit-review"],
-      "requires": ["core"],
-      "cloudOnly": true
     }
+  },
+  "skus": {
+    "core": ["core"],
+    "unity-pro": ["core", "pke", "vfx"],
+    "unity-studio": ["core", "pke", "vfx", "shadergraph", "figma-hud", "builder", "review"]
   },
   "neverShipToClient": [
     "agent-kit-promotion",

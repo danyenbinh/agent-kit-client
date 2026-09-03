@@ -1,23 +1,25 @@
 # agent-kit-client
 
-**Ngọn runtime** cho khách / project Unity. Repo: https://github.com/danyenbinh/agent-kit-client
+**Ngọn runtime** đa host / đa domain — https://github.com/danyenbinh/agent-kit-client
 
 | Có | Không có |
 |----|----------|
-| Skill stub MD, bootstrap, license client | Hệ thống phát triển kit (`kit-dev`) |
-| MCP tip + sync theo entitlement | Full PKE/VFX source (nằm ở cloud dist) |
-| Pack đã mua (sau `sync-entitled`) | TemplatePro, promotion, governance |
+| Skill stub, bootstrap, license sync | `kit-dev`, governance, promotion |
+| Pack sau `sync-entitled` theo entitlement | Full Unity/PKE source (nằm cloud dist) |
 
-Factory / private: repo [`agent-kit-cloud`](https://github.com/danyenbinh/agent-kit-cloud).
+Factory: https://github.com/danyenbinh/agent-kit-cloud — xem [TAXONOMY](https://github.com/danyenbinh/agent-kit-cloud/blob/main/TAXONOMY.md) (local: `../agent-kit-cloud/TAXONOMY.md`).
 
-## Cutover (2026-09)
+## Hai trục (tóm tắt)
 
-`cursor-agent-kit` đã gỡ. ADHD dùng:
+- **Platform:** `universal` (Core) → `unity` (Pro/Studio) → `web` sau  
+- **Host:** `cursor` first → `claude-code` Phase 1 → `vscode` sau  
 
-- Factory MCP/skills SSOT: `agent-kit-cloud/kit-dev`
-- Client tip (commercial path): folder này
+## Phase 0
 
-## Quick start
+Registry v2: [registry/commercial-packs.json](registry/commercial-packs.json) có `axes` + `skus`.  
+Tag đề xuất: `v0.1.0-dev`.
+
+## Quick start (Cursor — host hiện tại)
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File agent-kit-client\scripts\bootstrap-client.ps1
@@ -25,4 +27,4 @@ powershell -ExecutionPolicy Bypass -File agent-kit-client\scripts\bootstrap-clie
 powershell -ExecutionPolicy Bypass -File agent-kit-client\scripts\sync-entitled.ps1
 ```
 
-Pack ids: `registry/commercial-packs.json`.
+Claude Code bootstrap: Phase 1 (`-Host claude-code`).
