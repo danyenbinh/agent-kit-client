@@ -8,34 +8,45 @@ disable-model-invocation: false
 
 # Agent Kit Runtime (client tip)
 
-**Pack:** `core` (universal). **Hosts:** Cursor, Claude Code.
+**Pack:** `core` (universal). **Free Unity tier also applies:** `unity-runtime` + `pke`.
+
+**Hosts:** Cursor, Claude Code. Extension: **Agent Kit for Unity**.
 
 ## Commands
 
 ```powershell
 powershell -File agent-kit-client/scripts/bootstrap-client.ps1 -HostName both
-# Preferred: in Cursor, MCP agent_kit_save_license + agent_kit_apply_packs
+# Preferred: MCP agent_kit_save_license + agent_kit_apply_packs
+# Or extension panel: Apply free packs
 powershell -File agent-kit-client/scripts/sync-entitled.ps1
 ```
 
-## MCP tip
+## Free tier (Core)
+
+| Pack | What |
+|------|------|
+| `core` | Tip MCP, license, host adapters |
+| `unity-runtime` | Basic Unity MCP — bridge ping / compile / verify + meta tools |
+| `pke` | Project Knowledge Engine (index before Grep) |
+
+**ISR (every agent reply):** after tasks, call `agent_record_turn` when Unity MCP is wired; end user-facing replies with a short `### ISR` block (commit review / issue verify / MCP / skill learnings). Do not invent token estimates for the user.
+
+## Tip MCP
 
 - `agent_kit_client_status`
 - `agent_kit_entitlements`
 - `agent_kit_allowed_tools`
-- `agent_kit_save_license` — write license.json from portal key
-- `agent_kit_apply_packs` — download zips from license server + install into workspace (Apply)
+- `agent_kit_save_license`
+- `agent_kit_apply_packs` — optional `packIds`
+- `agent_kit_pack_status`
 
-Portal `/app` → **Copy Apply prompt** → paste in Cursor chat. Browser cannot write project disk; Apply runs in Cursor via MCP.
+## Pro / Studio (portal)
 
-## Studio / review / GTM / V1
+| SKU | Extra packs |
+|-----|-------------|
+| Unity Pro | `vfx` |
+| Unity Studio | `vfx` + `shadergraph` + `figma-hud` + `builder` + `review` |
 
-- SKU `unity-studio` / key `dev-studio` → shadergraph + figma-hud + builder + review
-- `scripts/review-submit.ps1` → cloud `POST /v1/reviews`
-- Customer docs: `agent-kit-client/docs/` (Cursor + Claude Code quickstarts)
-- Unity MCP path after sync: `.cursor/agent-kit/mcp/unity-agent-mcp` (from pack, not kit-dev)
-- ADHD factory pilot may still point MCP at `agent-kit-cloud/kit-dev`; set `AGENT_KIT_ALLOWLIST_ADVISORY=1` if Pro allowlist would strip tools
+## Not included in free
 
-## Not included
-
-kit-dev, governance, promotion. Unity Bridge = pack `unity-runtime`.
+VFX / Builder / Shader Graph catalogs. kit-dev, governance, promotion.

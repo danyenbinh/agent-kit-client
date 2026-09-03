@@ -1,0 +1,109 @@
+{
+  "name": "agent-kit-for-unity",
+  "displayName": "Agent Kit for Unity",
+  "description": "Free Unity on-ramp: Core tip, basic Unity MCP (bridge/verify), PKE index, and ISR usage tools. VFX/Builder/Shader via portal Pro/Studio.",
+  "version": "0.1.2",
+  "publisher": "ZezoCode",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danyenbinh/agent-kit-client.git"
+  },
+  "homepage": "https://github.com/danyenbinh/agent-kit-client/tree/main/extension",
+  "bugs": {
+    "url": "https://github.com/danyenbinh/agent-kit-client/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "unity",
+    "mcp",
+    "game-development",
+    "workspace"
+  ],
+  "galleryBanner": {
+    "color": "#1b2330",
+    "theme": "dark"
+  },
+  "icon": "media/icon.png",
+  "qna": "marketplace",
+  "extensionKind": [
+    "workspace"
+  ],
+  "activationEvents": [
+    "onView:agentKitUnity.panel",
+    "onCommand:agentKitUnity.openPanel",
+    "onCommand:agentKitUnity.applyCore",
+    "onCommand:agentKitUnity.openPortal"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "agentKitUnity.openPanel",
+        "title": "Agent Kit for Unity: Open panel",
+        "category": "Agent Kit for Unity"
+      },
+      {
+        "command": "agentKitUnity.applyCore",
+        "title": "Agent Kit for Unity: Apply Core pack",
+        "category": "Agent Kit for Unity"
+      },
+      {
+        "command": "agentKitUnity.openPortal",
+        "title": "Agent Kit for Unity: Open account page",
+        "category": "Agent Kit for Unity"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "agent-kit-unity",
+          "title": "Agent Kit for Unity",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "agent-kit-unity": [
+        {
+          "type": "webview",
+          "id": "agentKitUnity.panel",
+          "name": "Setup"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Agent Kit for Unity",
+      "properties": {
+        "agentKit.licenseApi": {
+          "type": "string",
+          "default": "",
+          "description": "HTTPS base URL of your Agent Kit license server (example: https://license.example.com). Leave empty until configured."
+        },
+        "agentKit.freeKey": {
+          "type": "string",
+          "default": "",
+          "description": "License key used for the free Core pack. Required before Apply Core."
+        },
+        "agentKit.portalPath": {
+          "type": "string",
+          "default": "/app",
+          "description": "Path appended to licenseApi for the account page."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "package": "node ./scripts/sync-vendor.mjs && node ./scripts/ensure-icon.mjs && npx --yes @vscode/vsce package --no-dependencies",
+    "sync-vendor": "node ./scripts/sync-vendor.mjs",
+    "ensure-icon": "node ./scripts/ensure-icon.mjs"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0"
+  }
+}

@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "purpose": "Commercial packs — stub on client; runtime after sync-entitled.",
+  "version": 3,
+  "purpose": "Commercial packs — stub on client; runtime after sync-entitled / Apply.",
   "licenseApiDefault": "http://localhost:8787",
   "axes": {
     "platform": ["universal", "unity", "web"],
@@ -12,7 +12,7 @@
       "label": "Core",
       "platform": "universal",
       "hosts": ["*"],
-      "description": "Bootstrap, license, host adapters — no Unity Bridge",
+      "description": "Bootstrap, license, host adapters, ISR discipline",
       "includedIn": ["free", "pro", "studio"],
       "stubSkillIds": ["agent-kit-runtime"],
       "setupScript": null
@@ -31,8 +31,8 @@
       "label": "Unity Runtime",
       "platform": "unity",
       "hosts": ["*"],
-      "description": "Bridge ping/compile via MCP",
-      "includedIn": ["pro", "studio"],
+      "description": "Basic Unity MCP — bridge ping/compile/verify (+ meta ISR tools)",
+      "includedIn": ["free", "pro", "studio"],
       "stubSkillIds": [],
       "requires": ["core"]
     },
@@ -42,7 +42,7 @@
       "platform": "unity",
       "hosts": ["*"],
       "description": "Live C# / prefab / reference index",
-      "includedIn": ["pro", "studio"],
+      "includedIn": ["free", "pro", "studio"],
       "stubSkillIds": ["unity-live-index"],
       "requires": ["core", "unity-runtime"]
     },
@@ -88,9 +88,18 @@
     }
   },
   "skus": {
-    "core": ["core"],
+    "core": ["core", "unity-runtime", "pke"],
     "unity-pro": ["core", "unity-runtime", "pke", "vfx"],
-    "unity-studio": ["core", "unity-runtime", "pke", "vfx", "shadergraph", "figma-hud", "builder", "review"]
+    "unity-studio": [
+      "core",
+      "unity-runtime",
+      "pke",
+      "vfx",
+      "shadergraph",
+      "figma-hud",
+      "builder",
+      "review"
+    ]
   },
   "neverShipToClient": [
     "agent-kit-promotion",

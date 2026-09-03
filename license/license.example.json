@@ -2,9 +2,9 @@
   "key": "dev-core",
   "org": "YourStudio",
   "seats": 1,
-  "platforms": ["universal"],
+  "platforms": ["universal", "unity"],
   "licenseApi": "http://localhost:8787",
   "installedPacks": [],
   "expiresAt": null,
-  "note": "Copy to <game>/.cursor/agent-kit-license.json then sync-entitled.ps1. Keys: dev-core | dev-unity-pro | dev-studio | dev-expired"
+  "note": "Free key packs: core + unity-runtime + pke. Pro adds vfx. Studio adds shadergraph/figma-hud/builder/review. Keys: dev-core | dev-unity-pro | dev-studio | dev-expired"
 }

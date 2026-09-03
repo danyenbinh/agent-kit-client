@@ -1,0 +1,10 @@
+.vscode/**
+.vscode-test/**
+.gitignore
+.vscodeignore
+scripts/sync-vendor.mjs
+scripts/ensure-icon.mjs
+MARKETPLACE.md
+*.vsix
+node_modules/**
+**/*.map

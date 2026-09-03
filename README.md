@@ -14,6 +14,21 @@ https://github.com/danyenbinh/agent-kit-client
 
 ## Install
 
+### A) Free extension — Agent Kit for Unity (recommended for Core)
+
+```powershell
+cd agent-kit-client/extension
+npm run sync-vendor
+cd vendor/mcp/agent-kit-client ; npm install --omit=dev ; cd ../../..
+npm run ensure-icon
+npm run package   # needs Node 20+
+```
+
+Install `.vsix` or publish per [extension/MARKETPLACE.md](extension/MARKETPLACE.md).  
+Side panel **Agent Kit for Unity** → **Apply Core**. Portal = account / Pro billing.
+
+### B) Scripts (power users)
+
 ```powershell
 powershell -File agent-kit-client/scripts/bootstrap-client.ps1 -HostName both
 # set .cursor/agent-kit-license.json → key + licenseApi
@@ -27,6 +42,7 @@ powershell -File agent-kit-client/scripts/sync-entitled.ps1 -HostName both
 | `agent-kit-runtime`, stubs, license sync | kit-dev / governance |
 | MCP tip (`agent_kit_*`) | Unity Bridge until Unity packs entitled |
 | Host adapters Cursor + Claude Code | |
+| **extension/** Core free VSIX scaffold | Unity/PKE inside free extension |
 
 Factory / portal: vendor `agent-kit-cloud` (private). Version: `1.0.0-rc.1` (V1 gate).
 
