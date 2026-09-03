@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- Marketplace README: Cursor + Claude Code dual-host benefits and day-to-day use cases
+- Listing description updated for free PKE + bridge MCP
+
 ## 0.1.2
 
 - Free Apply installs `core` + `unity-runtime` + `pke` (basic MCP + PKE + ISR tools)

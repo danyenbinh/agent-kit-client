@@ -4,7 +4,7 @@
 .vscodeignore
 scripts/sync-vendor.mjs
 scripts/ensure-icon.mjs
-MARKETPLACE.md
+README.DRAFT.md
 *.vsix
 node_modules/**
 **/*.map

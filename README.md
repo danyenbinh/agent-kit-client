@@ -24,7 +24,8 @@ npm run ensure-icon
 npm run package   # needs Node 20+
 ```
 
-Install `.vsix` or publish per [extension/MARKETPLACE.md](extension/MARKETPLACE.md).  
+Install `.vsix` from Releases or build with `npm run package` in `extension/`.  
+Vendor-only Marketplace publish guide: `agent-kit-cloud/ops/MARKETPLACE.md` (private cloud repo).
 Side panel **Agent Kit for Unity** → **Apply Core**. Portal = account / Pro billing.
 
 ### B) Scripts (power users)
