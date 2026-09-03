@@ -15,7 +15,7 @@ Install this extension (or clone [agent-kit-client](https://github.com/danyenbin
 
 ```powershell
 # from repo that contains agent-kit-client (or pass -ProjectRoot)
-pwsh -File agent-kit-client/scripts/init-agent-kit.ps1 -HostName both
+powershell -File agent-kit-client/scripts/init-agent-kit.ps1 -HostName both
 ```
 
 Or in Claude (after tip MCP is available): call MCP **`agent_kit_init`** with `hosts: ["cursor","claude-code"]`.
