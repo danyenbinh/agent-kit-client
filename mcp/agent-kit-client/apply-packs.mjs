@@ -18,9 +18,27 @@ const NEVER_SHIP = new Set([
   "agent-project-orchestrator",
 ]);
 
+const TIP_TOOLS = [
+  "agent_kit_client_status",
+  "agent_kit_entitlements",
+  "agent_kit_allowed_tools",
+  "agent_kit_apply_packs",
+  "agent_kit_save_license",
+  "agent_kit_pack_status",
+];
+
 function readJson(p) {
   const raw = fs.readFileSync(p, "utf8").replace(/^\uFEFF/, "");
   return JSON.parse(raw);
+}
+
+function readJsonSafe(p) {
+  try {
+    if (!fs.existsSync(p)) return null;
+    return readJson(p);
+  } catch {
+    return null;
+  }
 }
 
 function ensureDir(p) {
@@ -53,6 +71,156 @@ async function downloadToFile(url, dest) {
   ensureDir(path.dirname(dest));
   const body = Readable.fromWeb(res.body);
   await pipeline(body, createWriteStream(dest));
+}
+
+function listInstalledMarkers(installedDir) {
+  if (!fs.existsSync(installedDir)) return [];
+  return fs
+    .readdirSync(installedDir)
+    .filter((f) => f.endsWith(".json") && !f.includes(".bridge."))
+    .map((f) => {
+      const meta = readJsonSafe(path.join(installedDir, f));
+      return {
+        packId: meta?.packId || f.replace(/\.json$/, ""),
+        version: meta?.version ?? null,
+        installedAt: meta?.installedAt || null,
+      };
+    });
+}
+
+function rebuildAllowlistFromExtract({
+  projectRoot,
+  extractRoot,
+  installedPackIds,
+  prevAllow,
+}) {
+  const mergedTools = new Set([
+    ...(prevAllow?.tools || []),
+    ...TIP_TOOLS,
+  ]);
+  const mergedGroups = new Set(prevAllow?.toolGroups || []);
+
+  for (const packId of installedPackIds) {
+    const fragPath = path.join(extractRoot, packId, "meta", "mcp-fragment.json");
+    if (!fs.existsSync(fragPath)) continue;
+    const frag = readJson(fragPath);
+    for (const g of frag.toolGroups || []) if (g) mergedGroups.add(g);
+    for (const t of frag.tools || []) if (t) mergedTools.add(t);
+  }
+
+  const tools = [...mergedTools];
+  const enforcement =
+    process.env.AGENT_KIT_ALLOWLIST_ADVISORY === "1"
+      ? "advisory"
+      : tools.length >= 10
+        ? "strict"
+        : "advisory";
+
+  return {
+    version: 1,
+    phase: 3,
+    skuHint:
+      installedPackIds.includes("shadergraph") || installedPackIds.includes("builder")
+        ? "unity-studio"
+        : installedPackIds.includes("pke")
+          ? "unity-pro"
+          : "custom",
+    packs: installedPackIds,
+    toolGroups: [...mergedGroups],
+    tools,
+    updatedAt: new Date().toISOString(),
+    enforcement,
+    note: "written by agent_kit_apply_packs",
+    projectRoot,
+  };
+}
+
+async function postInstallReport(api, key, markers, projectRoot) {
+  const packs = {};
+  for (const m of markers) {
+    packs[m.packId] = {
+      version: m.version,
+      installedAt: m.installedAt || new Date().toISOString(),
+    };
+  }
+  try {
+    const res = await fetch(`${api}/v1/install-report`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        key,
+        source: "agent_kit_apply_packs",
+        projectHint: path.basename(projectRoot),
+        packs,
+      }),
+    });
+    const body = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, body };
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
+/**
+ * Compare local installed markers vs license API packDetails.
+ */
+export async function packStatusForProject(projectRoot) {
+  const licensePath = path.join(projectRoot, ".cursor", "agent-kit-license.json");
+  const license = readJsonSafe(licensePath);
+  if (!license?.key) {
+    return { ok: false, error: "no_license", path: licensePath };
+  }
+  const api = String(license.licenseApi || "http://localhost:8787").replace(/\/$/, "");
+  const installedDir = path.join(projectRoot, ".cursor", "agent-kit", "installed");
+  const local = listInstalledMarkers(installedDir);
+  const localMap = Object.fromEntries(local.map((m) => [m.packId, m]));
+
+  const entRes = await fetch(`${api}/v1/entitlements?key=${encodeURIComponent(license.key)}`);
+  const ent = await entRes.json();
+  if (!entRes.ok) {
+    return { ok: false, error: "entitlements_failed", status: entRes.status, body: ent };
+  }
+
+  // Prefer live local markers for status; also push report so portal stays in sync
+  await postInstallReport(api, license.key, local, projectRoot);
+
+  const remoteDetails = Array.isArray(ent.packDetails) ? ent.packDetails : [];
+  const byId = Object.fromEntries(remoteDetails.map((p) => [p.id, p]));
+  const packs = (ent.packs || []).map((id) => {
+    const remote = byId[id] || { id, latestVersion: null };
+    const loc = localMap[id];
+    const latestVersion = remote.latestVersion || null;
+    const installedVersion = loc?.version ?? remote.installedVersion ?? null;
+    let status = "not_reported";
+    let updateAvailable = false;
+    if (installedVersion && latestVersion) {
+      if (installedVersion === latestVersion) status = "up_to_date";
+      else {
+        status = "update_available";
+        updateAvailable = installedVersion !== latestVersion;
+      }
+    } else if (!installedVersion) status = "not_reported";
+    else status = "unknown";
+    return {
+      id,
+      label: remote.label || id,
+      latestVersion,
+      installedVersion,
+      installedAt: loc?.installedAt || remote.installedAt || null,
+      status,
+      updateAvailable,
+    };
+  });
+
+  return {
+    ok: true,
+    api,
+    packs,
+    updates: packs.filter((p) => p.updateAvailable).map((p) => p.id),
+    next: packs.some((p) => p.updateAvailable)
+      ? `agent_kit_apply_packs with packIds=${JSON.stringify(packs.filter((p) => p.updateAvailable).map((p) => p.id))}`
+      : "All reported packs match cloud latest (or no local install yet)",
+  };
 }
 
 /**
@@ -89,19 +257,13 @@ export async function applyPacksToProject(projectRoot, opts = {}) {
   const extractRoot = path.join(projectRoot, ".cursor", "agent-kit", "cache", "extract");
   const skillsRoot = path.join(projectRoot, ".cursor", "skills");
   const installedDir = path.join(projectRoot, ".cursor", "agent-kit", "installed");
+  const allowPath = path.join(projectRoot, ".cursor", "agent-kit", "mcp-allowlist.json");
   ensureDir(cacheRoot);
   ensureDir(extractRoot);
   ensureDir(skillsRoot);
   ensureDir(installedDir);
 
-  const mergedTools = new Set([
-    "agent_kit_client_status",
-    "agent_kit_entitlements",
-    "agent_kit_allowed_tools",
-    "agent_kit_apply_packs",
-    "agent_kit_save_license",
-  ]);
-  const mergedGroups = new Set();
+  const prevAllow = readJsonSafe(allowPath);
   const installed = [];
   const errors = [];
 
@@ -127,13 +289,6 @@ export async function applyPacksToProject(projectRoot, opts = {}) {
           rmrf(dst);
           copyDir(src, dst);
         }
-      }
-
-      const fragPath = path.join(outDir, "meta", "mcp-fragment.json");
-      if (fs.existsSync(fragPath)) {
-        const frag = readJson(fragPath);
-        for (const g of frag.toolGroups || []) if (g) mergedGroups.add(g);
-        for (const t of frag.tools || []) if (t) mergedTools.add(t);
       }
 
       // Unity MCP from unity-runtime pack
@@ -167,29 +322,17 @@ export async function applyPacksToProject(projectRoot, opts = {}) {
     }
   }
 
-  const tools = [...mergedTools];
-  const enforcement =
-    process.env.AGENT_KIT_ALLOWLIST_ADVISORY === "1"
-      ? "advisory"
-      : tools.length >= 10
-        ? "strict"
-        : "advisory";
-
-  const allowlist = {
-    version: 1,
-    phase: 3,
-    skuHint: packs.includes("shadergraph") || packs.includes("builder") ? "unity-studio" : packs.includes("pke") ? "unity-pro" : "custom",
-    packs: installed,
-    toolGroups: [...mergedGroups],
-    tools,
-    updatedAt: new Date().toISOString(),
-    enforcement,
-    note: "written by agent_kit_apply_packs",
-  };
-  const allowPath = path.join(projectRoot, ".cursor", "agent-kit", "mcp-allowlist.json");
+  const markers = listInstalledMarkers(installedDir);
+  const allInstalledIds = markers.map((m) => m.packId);
+  const allowlist = rebuildAllowlistFromExtract({
+    projectRoot,
+    extractRoot,
+    installedPackIds: allInstalledIds,
+    prevAllow,
+  });
   fs.writeFileSync(allowPath, JSON.stringify(allowlist, null, 2));
 
-  license.installedPacks = installed;
+  license.installedPacks = allInstalledIds;
   license.org = ent.org || license.org;
   license.plan = ent.plan || license.plan;
   license.seats = ent.seats || license.seats;
@@ -198,17 +341,21 @@ export async function applyPacksToProject(projectRoot, opts = {}) {
   license.appliedAt = new Date().toISOString();
   fs.writeFileSync(licensePath, JSON.stringify(license, null, 2));
 
+  const report = await postInstallReport(api, license.key, markers, projectRoot);
+
   return {
     ok: errors.length === 0,
     api,
     installed,
+    allInstalled: allInstalledIds,
     errors,
-    allowlistTools: tools.length,
-    enforcement,
+    allowlistTools: allowlist.tools.length,
+    enforcement: allowlist.enforcement,
+    installReport: report,
     next:
-      installed.includes("unity-runtime")
+      installed.includes("unity-runtime") || allInstalledIds.includes("unity-runtime")
         ? "npm install in .cursor/agent-kit/mcp/unity-agent-mcp ; merge MCP from mcp.entitled.hint if needed ; Reload MCP"
-        : "Reload MCP / skills in Cursor",
+        : "Reload MCP / skills in Cursor ; refresh /app to see Installed versions",
   };
 }
 

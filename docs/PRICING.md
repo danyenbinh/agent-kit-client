@@ -6,16 +6,18 @@ Full vendor sheet (indicative Y1): see cloud `gtm/PRICING.md` when under NDA.
 
 | SKU | You get |
 |-----|---------|
-| **Core** | Tip, license sync, Cursor + Claude Code adapters |
-| **Unity Pro** | + Unity Bridge MCP, PKE, VFX |
-| **Unity Studio** | + Shader Graph, Figma HUD, Builder, Review cloud |
+| **Core** (free / starter) | Tip + **basic Unity MCP** (bridge / compile / verify) + **PKE** + **ISR** usage tools |
+| **Unity Pro** | + **VFX** authoring |
+| **Unity Studio** | + Shader Graph, Figma HUD, **Builder**, Review cloud |
+
+**Not in Core:** VFX, Builder, Shader Graph (Pro / Studio).
 
 **Hosts are free** with Core. Invoice is by **org seats + domain SKU**, not by IDE.
 
 ## Year 1 billing
 
-Manual invoice → portal license key → `sync-entitled.ps1`.  
-Stripe self-serve comes later.
+Portal license key → Apply in Cursor / `sync-entitled.ps1`.  
+Stripe self-serve on vendor portal.
 
 ## Design partners
 

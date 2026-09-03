@@ -10,7 +10,11 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { applyPacksToProject, saveLicenseFile } from "./apply-packs.mjs";
+import {
+  applyPacksToProject,
+  saveLicenseFile,
+  packStatusForProject,
+} from "./apply-packs.mjs";
 
 function projectRoot() {
   return (
@@ -142,7 +146,7 @@ const TOOLS = [
   {
     name: "agent_kit_apply_packs",
     description:
-      "Download entitled pack zips from license server and install into this workspace (skills, allowlist, Unity MCP). Prefer over manual Download+unzip.",
+      "Download entitled pack zips from license server and install into this workspace (skills, allowlist, Unity MCP). Prefer over manual Download+unzip. Pass packIds to apply one pack.",
     inputSchema: {
       type: "object",
       properties: {
@@ -154,6 +158,12 @@ const TOOLS = [
       },
       additionalProperties: false,
     },
+  },
+  {
+    name: "agent_kit_pack_status",
+    description:
+      "Compare local installed pack versions vs license API latest; report updateAvailable; sync install report to portal /app.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
   },
 ];
 
@@ -179,6 +189,8 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     });
   } else if (name === "agent_kit_apply_packs") {
     result = await applyPacksToProject(projectRoot(), { packIds: args.packIds });
+  } else if (name === "agent_kit_pack_status") {
+    result = await packStatusForProject(projectRoot());
   } else throw new Error(`Unknown tool: ${name}`);
   return {
     content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
