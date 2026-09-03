@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "agent-kit-client": {
+      "command": "node",
+      "args": ["agent-kit-client/mcp/agent-kit-client/index.mjs"],
+      "env": {
+        "AGENT_PROJECT_ROOT": "."
+      }
+    }
+  }
+}

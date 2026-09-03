@@ -14,7 +14,7 @@
       "hosts": ["*"],
       "description": "Bootstrap, license, host adapters — no Unity Bridge",
       "includedIn": ["free", "pro", "studio"],
-      "stubSkillIds": ["unity-agent-runtime"],
+      "stubSkillIds": ["agent-kit-runtime"],
       "setupScript": null
     },
     "review": {
@@ -31,9 +31,8 @@
       "label": "Unity Runtime",
       "platform": "unity",
       "hosts": ["*"],
-      "description": "Bridge ping/compile (Phase 1 split)",
+      "description": "Bridge ping/compile via MCP",
       "includedIn": ["pro", "studio"],
-      "status": "planned",
       "stubSkillIds": [],
       "requires": ["core"]
     },
@@ -45,7 +44,7 @@
       "description": "Live C# / prefab / reference index",
       "includedIn": ["pro", "studio"],
       "stubSkillIds": ["unity-live-index"],
-      "requires": ["core"]
+      "requires": ["core", "unity-runtime"]
     },
     "vfx": {
       "plannedId": "unity-vfx",
@@ -55,7 +54,7 @@
       "description": "Particle catalog + bridge VFX",
       "includedIn": ["pro", "studio"],
       "stubSkillIds": ["unity-vfx-authoring"],
-      "requires": ["core"]
+      "requires": ["core", "unity-runtime"]
     },
     "shadergraph": {
       "plannedId": "unity-shadergraph",
@@ -65,17 +64,17 @@
       "description": "Shader Graph catalog + templates",
       "includedIn": ["studio"],
       "stubSkillIds": ["unity-shadergraph-authoring"],
-      "requires": ["core"]
+      "requires": ["core", "unity-runtime"]
     },
     "figma-hud": {
       "plannedId": "unity-figma-hud",
       "label": "Figma HUD",
       "platform": "unity",
       "hosts": ["*"],
-      "description": "Figma REST → HUD panel",
+      "description": "Figma REST to HUD panel",
       "includedIn": ["studio"],
       "stubSkillIds": ["unity-figma-hud-authoring"],
-      "requires": ["core"]
+      "requires": ["core", "unity-runtime"]
     },
     "builder": {
       "plannedId": "unity-builder",
@@ -85,13 +84,13 @@
       "description": "Declarative prefab/scene/VFX recipes",
       "includedIn": ["studio"],
       "stubSkillIds": ["unity-builder-system"],
-      "requires": ["core"]
+      "requires": ["core", "unity-runtime"]
     }
   },
   "skus": {
     "core": ["core"],
-    "unity-pro": ["core", "pke", "vfx"],
-    "unity-studio": ["core", "pke", "vfx", "shadergraph", "figma-hud", "builder", "review"]
+    "unity-pro": ["core", "unity-runtime", "pke", "vfx"],
+    "unity-studio": ["core", "unity-runtime", "pke", "vfx", "shadergraph", "figma-hud", "builder", "review"]
   },
   "neverShipToClient": [
     "agent-kit-promotion",

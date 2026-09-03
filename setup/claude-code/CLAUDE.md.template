@@ -1,0 +1,28 @@
+# {{PROJECT_NAME}} — Agent Kit (Claude Code)
+
+Client tip only. Factory/kit-dev is not on this machine.
+
+## Bootstrap
+
+1. Place `agent-kit-client` at repo root (or set path).
+2. `powershell -File agent-kit-client/scripts/bootstrap-client.ps1 -HostName claude-code`
+3. Edit `.cursor/agent-kit-license.json` (key + licenseApi).
+4. `powershell -File agent-kit-client/scripts/sync-entitled.ps1 -HostName claude-code`
+
+## MCP
+
+`.mcp.json` should include `agent-kit-client` pointing at:
+
+`agent-kit-client/mcp/agent-kit-client/index.mjs`
+
+Reload Claude Code MCP after bootstrap.
+
+## Skills
+
+Installed under `.cursor/skills/` (shared with Cursor when both hosts enabled).
+Pack stubs live there until `sync-entitled` replaces them with entitled packs.
+
+## Do not
+
+- Expect Unity Bridge without pack `unity-runtime`
+- Copy `agent-kit-cloud/kit-dev` into customer projects
