@@ -1,32 +1,28 @@
 # agent-kit-client
 
-**Ngọn runtime** cho khách / project Unity. Không chứa hệ thống phát triển kit.
+**Ngọn runtime** cho khách / project Unity. Repo: https://github.com/danyenbinh/agent-kit-client
 
 | Có | Không có |
 |----|----------|
-| Skill stub MD, bootstrap, license client | `agent-kit-promotion`, governance, north-star nội bộ |
-| MCP mỏng + sync theo entitlement | Full PKE/VFX/Figma source |
-| Pack đã mua (sau `sync-entitled`) | TemplatePro, ISR factory, pack publisher |
+| Skill stub MD, bootstrap, license client | Hệ thống phát triển kit (`kit-dev`) |
+| MCP tip + sync theo entitlement | Full PKE/VFX source (nằm ở cloud dist) |
+| Pack đã mua (sau `sync-entitled`) | TemplatePro, promotion, governance |
 
-SSOT pack & factory: repo/folder [`../agent-kit-cloud`](../agent-kit-cloud).
+Factory / private: repo [`agent-kit-cloud`](https://github.com/danyenbinh/agent-kit-cloud).
 
-ADHD nội bộ vẫn dùng `cursor-agent-kit/` cho đến khi cutover xong.
+## Cutover (2026-09)
 
-## Quick start (khách)
+`cursor-agent-kit` đã gỡ. ADHD dùng:
+
+- Factory MCP/skills SSOT: `agent-kit-cloud/kit-dev`
+- Client tip (commercial path): folder này
+
+## Quick start
 
 ```powershell
-# 1. Copy hoặc submodule agent-kit-client vào root repo game
-# 2. Điền license
-copy agent-kit-client\license\license.example.json .cursor\agent-kit-license.json
-# sửa key / org
-
-# 3. Bootstrap ngọn
 powershell -ExecutionPolicy Bypass -File agent-kit-client\scripts\bootstrap-client.ps1
-
-# 4. Kéo pack đã mua
+# điền .cursor\agent-kit-license.json
 powershell -ExecutionPolicy Bypass -File agent-kit-client\scripts\sync-entitled.ps1
 ```
 
-## Pack ids
-
-Xem `registry/commercial-packs.json`. Mua gói nào → sync chỉ init gói đó.
+Pack ids: `registry/commercial-packs.json`.
